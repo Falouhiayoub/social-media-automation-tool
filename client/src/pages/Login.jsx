@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Mail, Lock, LogIn, Globe, Cpu } from "lucide-react";
+import { useGoogleLogin } from "@react-oauth/google";
 import api from "../api/api";
 import "./Login.css";
 
@@ -27,6 +28,30 @@ export default function Login() {
       setIsLoading(false);
     }
   };
+
+  const handleGoogleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setIsLoading(true);
+      setError("");
+      try {
+        // Send the access token to the backend
+        const res = await api.post("/auth/google", {
+          token: tokenResponse.access_token,
+        });
+        localStorage.setItem("token", res.data.token);
+        window.location.href = "/dashboard";
+      } catch (err) {
+        console.error("Google login failed:", err);
+        setError("Google authentication failed. Please try again.");
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    onError: (error) => {
+      console.error("Google login error:", error);
+      setError("Failed to connect with Google.");
+    },
+  });
 
   return (
     <div className="login-container">
@@ -128,8 +153,12 @@ export default function Login() {
           </div>
 
           <div className="social-login">
-
-            <button className="social-button">
+            <button 
+              className="social-button" 
+              type="button" 
+              onClick={() => handleGoogleLogin()}
+              disabled={isLoading}
+            >
               <Globe size={18} />
               Google
             </button>
