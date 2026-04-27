@@ -21,7 +21,13 @@ export default function Login() {
     try {
       const res = await api.post("/login", form);
       localStorage.setItem("token", res.data.token);
-      window.location.href = "/dashboard";
+      localStorage.setItem("role", res.data.user.role);
+      
+      if (res.data.user.role === "admin") {
+        window.location.href = "/dashboard";
+      } else {
+        window.location.href = "/";
+      }
     } catch (err) {
       setError("Invalid credentials. Please try again.");
     } finally {
@@ -39,7 +45,13 @@ export default function Login() {
           token: tokenResponse.access_token,
         });
         localStorage.setItem("token", res.data.token);
-        window.location.href = "/dashboard";
+        localStorage.setItem("role", res.data.user.role);
+
+        if (res.data.user.role === "admin") {
+          window.location.href = "/dashboard";
+        } else {
+          window.location.href = "/";
+        }
       } catch (err) {
         console.error("Google login failed:", err);
         setError("Google authentication failed. Please try again.");
