@@ -11,8 +11,14 @@ export default function Dashboard() {
       try {
         const res = await api.get("/user");
         setUser(res.data);
+        
+        // Role-based access control
+        if (res.data.role !== "admin") {
+          window.location.href = "/";
+        }
       } catch (err) {
         console.error("Failed to fetch user:", err);
+        window.location.href = "/login";
       }
     };
     fetchUser();
