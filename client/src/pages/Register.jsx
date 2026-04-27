@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Mail, Lock, User, UserPlus, Globe, Cpu } from "lucide-react";
+import { useGoogleLogin } from "@react-oauth/google";
 import api from "../api/api";
 import "./Login.css"; // Reuse login styles for consistency
 
@@ -21,7 +22,10 @@ export default function Register() {
     try {
       const res = await api.post("/register", form);
       localStorage.setItem("token", res.data.token);
-      window.location.href = "/dashboard";
+      localStorage.setItem("role", res.data.user.role || "user");
+      
+      // Regular registration redirects to home for users
+      window.location.href = "/";
     } catch (err) {
       const msg = err.response?.data?.message || "Registration failed. Please try again.";
       setError(msg);
@@ -29,6 +33,36 @@ export default function Register() {
       setIsLoading(false);
     }
   };
+
+  const handleGoogleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setIsLoading(true);
+      setError("");
+      try {
+        const res = await api.post("/auth/google", {
+          token: tokenResponse.access_token,
+        });
+        localStorage.setItem("token", res.data.token);
+        localStorage.setItem("role", res.data.user.role);
+
+        // Google auth handles both login and registration
+        if (res.data.user.role === "admin") {
+          window.location.href = "/dashboard";
+        } else {
+          window.location.href = "/";
+        }
+      } catch (err) {
+        console.error("Google auth failed:", err);
+        setError("Google authentication failed. Please try again.");
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    onError: (error) => {
+      console.error("Google auth error:", error);
+      setError("Failed to connect with Google.");
+    },
+  });
 
   return (
     <div className="login-container">
@@ -148,8 +182,12 @@ export default function Register() {
           </div>
 
           <div className="social-login">
-
-            <button className="social-button">
+            <button 
+              className="social-button" 
+              type="button" 
+              onClick={() => handleGoogleLogin()}
+              disabled={isLoading}
+            >
               <Globe size={18} />
               Google
             </button>
