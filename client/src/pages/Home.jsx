@@ -1,6 +1,8 @@
 import { motion } from "framer-motion";
 import { Cpu, Zap, Share2, BarChart3, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 import "./Home.css";
 
 export default function Home() {
@@ -70,20 +72,7 @@ export default function Home() {
         />
       </div>
 
-      <nav className="navbar">
-        <Link to="/" className="nav-logo">
-          <Cpu className="text-primary" size={32} />
-          <span>SocialAI</span>
-        </Link>
-        <div className="nav-links">
-          <a href="#features" className="nav-link">Features</a>
-          <a href="#how-it-works" className="nav-link">How it works</a>
-          <Link to="/login" className="nav-link">Login</Link>
-          <Link to="/register" className="glow-button" style={{ textDecoration: 'none' }}>
-            Get Started
-          </Link>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* Hero Section */}
       <section className="hero">
@@ -197,16 +186,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="footer">
-        <div className="nav-logo">
-          <Cpu className="text-primary" size={32} />
-          <span>SocialAI</span>
-        </div>
-        <div className="copyright">
-          © 2026 SocialAI Automation Systems. All rights reserved.
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
